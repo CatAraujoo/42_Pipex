@@ -6,76 +6,50 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:38:32 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/03 15:27:07 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/06 14:46:17 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	ft_close_fd(int *fd)
+void	execute(char *av, char **envp, int *fd)
 {
-	close(fd[0]);
-	close(fd[1]);
-}
+	char	**cmd;
+	int		i;
+	char	*path;
 
-void	ft_free_str(char **str)
-{
-	int	i;
-	
-	i = 0;
-	while (*str[i])
-		free(str[i]);
-	free(str);
-}
-
-void	ft_exit(int error)
-{
-	if (error == 1)
+	i = -1;
+	cmd = ft_split(av, ' ');
+	path = ft_find_path(cmd[0], envp);
+	if (!path)
 	{
-		ft_putstr_fd("Invalid input. It should ./pipex file1 cmd1 cmd2 file2.\n", 2);
+		ft_free_str(cmd);
+		close(fd[0]);
+		close(fd[1]);
+	}	
+	if (execve(path, cmd, envp) == -1)
+	{
+		close(fd[0]);
+		close(fd[1]);
 		exit(EXIT_FAILURE);
 	}
-	if (error == 2)
-	{
-		ft_putstr_fd("Failed to open file.\n", 2);
-		exit(EXIT_FAILURE);
-	}
-	if (error == 3)
-	{
-		ft_putstr_fd("Pipe creation failed.\n", 2);
-		exit(EXIT_FAILURE);
-	}
-	if (error == 4)
-	{
-		ft_putstr_fd("Fork failed.\n", 2);
-		exit(EXIT_FAILURE);
-	}
+	ft_free_str(cmd);
+	free(path);
 }
 
-int	ft_open(char *file, int input_output)
+char	*ft_find_path(char *cmd, char **envp)
 {
-	int	value;
-
-	if (input_output == 0)
-		value = open(file, O_RDONLY, 0444);
-	if (input_output == 1)
-		value = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	return (value);
-}
-
-char	*ft_get_path(char *cmd, char **env)
-{
-	int	i;
 	char	**full_path;
 	char	*part_path;
 	char	*path;
-
+	int		i;
+	
 	i = 0;
-	if (!env[i])
-		return (NULL);
-	while (ft_strnstr(env[i], "PATH=", 5) == 0)
+	while (envp[i] && ft_strnstr(envp[i], "PATH=", 5) == 0)
 		i++;
-	full_path = ft_split(env[i] + 5, ":");
+	if (!envp[i])
+		return (NULL);
+	full_path = ft_split(envp[i] + 5, ':');
 	i = 0;
 	while (full_path[i])
 	{
@@ -88,5 +62,21 @@ char	*ft_get_path(char *cmd, char **env)
 		i++;
 	}
 	ft_free_str(full_path);
-	return (NULL);
+	return (0);
+}
+
+void	ft_free_str(char **str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+		free(str[i++]);
+	free(str);
+}
+
+void	ft_exit(char *msg)
+{
+	ft_putstr_fd(msg, 2);
+	exit(EXIT_FAILURE);
 }

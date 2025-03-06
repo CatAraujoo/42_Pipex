@@ -6,7 +6,7 @@
 #    By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/03 13:24:40 by cmatos-a          #+#    #+#              #
-#    Updated: 2025/03/03 14:52:28 by cmatos-a         ###   ########.fr        #
+#    Updated: 2025/03/06 14:59:01 by cmatos-a         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,22 +14,22 @@ NAME = pipex
 LIB_NAME = libpipex.a
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g 
+CFLAGS = -Wall -Wextra -Werror -g #-fsanitize=address
 
 RM = rm -f
 MAKE_CMD = make
 
 INCLUDES_DIR = .
-SRCS_DIR = srcs/
+SRCS_DIR = .
 OBJ_DIR = obj
 
-SRCS =	$(SRCS_DIR)pipex_utils.c \
-		$(SRCS_DIR)pipex.c
+SRCS =	pipex_utils.c \
+		pipex.c
 
 LIBFT_DIR	= ./libft
 LIBFT		= $(LIBFT_DIR)/libft.a
 
-OBJS = $(SRCS:$(SRCS_DIR)%.c=$(OBJ_DIR)/%.o)
+OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 DEPS = $(INCLUDES_DIR)/pipex.h
 
@@ -44,7 +44,7 @@ $(LIB_NAME): $(OBJS)
 $(NAME): $(LIB_NAME) $(OBJ_DIR)/pipex.o
 	$(CC) $(CFLAGS) $(OBJ_DIR)/pipex.o $(LIB_NAME) $(LIBFT) -o $(NAME) 
 
-$(OBJ_DIR)/%.o: $(SRCS_DIR)%.c $(DEPS) | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: %.c $(DEPS) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I $(INCLUDES_DIR) -c $< -o $@
 
 $(OBJ_DIR):
