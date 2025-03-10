@@ -6,7 +6,7 @@
 /*   By: cmatos-a <cmatos-a@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 13:38:32 by cmatos-a          #+#    #+#             */
-/*   Updated: 2025/03/06 14:46:17 by cmatos-a         ###   ########.fr       */
+/*   Updated: 2025/03/10 10:51:22 by cmatos-a         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,13 @@ void	execute(char *av, char **envp, int *fd)
 		ft_free_str(cmd);
 		close(fd[0]);
 		close(fd[1]);
-	}	
-	if (execve(path, cmd, envp) == -1)
+	}
+	else if (execve(path, cmd, envp) == -1)
 	{
 		close(fd[0]);
 		close(fd[1]);
 		exit(EXIT_FAILURE);
 	}
-	ft_free_str(cmd);
-	free(path);
 }
 
 char	*ft_find_path(char *cmd, char **envp)
@@ -43,7 +41,7 @@ char	*ft_find_path(char *cmd, char **envp)
 	char	*part_path;
 	char	*path;
 	int		i;
-	
+
 	i = 0;
 	while (envp[i] && ft_strnstr(envp[i], "PATH=", 5) == 0)
 		i++;
@@ -61,7 +59,6 @@ char	*ft_find_path(char *cmd, char **envp)
 		free(path);
 		i++;
 	}
-	ft_free_str(full_path);
 	return (0);
 }
 
@@ -70,9 +67,16 @@ void	ft_free_str(char **str)
 	int	i;
 
 	i = 0;
-	while (str[i])
-		free(str[i++]);
-	free(str);
+	if (str && str[0] != NULL)
+	{
+		while (str[i])
+		{
+			free(str[i]);
+			i++;
+		}
+		free(str);
+		str = NULL;
+	}
 }
 
 void	ft_exit(char *msg)
