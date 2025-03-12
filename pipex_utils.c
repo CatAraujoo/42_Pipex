@@ -59,6 +59,7 @@ char	*ft_find_path(char *cmd, char **envp)
 		free(path);
 		i++;
 	}
+	ft_exit("Error! Command not found.\n");
 	return (0);
 }
 
